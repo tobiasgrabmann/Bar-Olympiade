@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#111318">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Bar-Olympiade">
+<meta name="apple-mobile-web-app-title" content="Fivebar-Olympiade">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>Fivebar-Olympiade</title>
@@ -89,7 +89,7 @@ $('teamFields').addEventListener('input',e=>{let t=e.target.dataset.team;if(!t)r
 $('rounds').addEventListener('click',e=>{let b=e.target.closest('[data-result]');if(!b)return;let [id,w]=b.dataset.result.split('|');if(results[id]===w)delete results[id];else results[id]=w;save();render();});
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['schedule','standings','final'].forEach(id=>$(id).classList.toggle('hidden',id!==b.dataset.tab));}));
 $('reset').addEventListener('click',()=>{if(!confirm('Wirklich alle Ergebnisse und Teamnamen zurücksetzen?'))return;results={};names={A:'Team A',B:'Team B',C:'Team C',D:'Team D'};localStorage.removeItem('barolympiade-v1');document.querySelectorAll('[data-team]').forEach(i=>i.value=names[i.dataset.team]);render();});
-$('export').addEventListener('click',async()=>{const s=stats(),order=sorted();let text='BAR-OLYMPIADE – ERGEBNISSE\n\n'+order.map((t,i)=>`${i+1}. ${names[t]}: ${s[t].points} Punkte`).join('\n')+'\n\n'+all.map(m=>`${m.sport}: ${names[m.a]} vs. ${names[m.b]} – ${results[m.id]? 'Sieger: '+names[results[m.id]]:'offen'}`).join('\n');try{if(navigator.share)await navigator.share({title:'Bar-Olympiade',text});else{await navigator.clipboard.writeText(text);toast('Ergebnisse kopiert!');}}catch(e){}});
+$('export').addEventListener('click',async()=>{const s=stats(),order=sorted();let text='FIVEBAR-OLYMPIADE – ERGEBNISSE\n\n'+order.map((t,i)=>`${i+1}. ${names[t]}: ${s[t].points} Punkte`).join('\n')+'\n\n'+all.map(m=>`${m.sport}: ${names[m.a]} vs. ${names[m.b]} – ${results[m.id]? 'Sieger: '+names[results[m.id]]:'offen'}`).join('\n');try{if(navigator.share)await navigator.share({title:'Fivebar-Olympiade',text});else{await navigator.clipboard.writeText(text);toast('Ergebnisse kopiert!');}}catch(e){}});
 function toast(msg){let el=$('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1800);}
 document.querySelectorAll('[data-team]').forEach(i=>i.value=names[i.dataset.team]);
 render();
