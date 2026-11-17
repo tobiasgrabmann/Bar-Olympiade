@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111318">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bar-Olympiade">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Bar-Olympiade</title>
+<style>
+:root{color-scheme:dark;--bg:#111318;--panel:#1b1e26;--panel2:#242833;--line:#343946;--text:#f7f5ef;--muted:#a5a9b4;--gold:#e9b949;--green:#55c78a;--red:#f07878}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#252a36 0,#111318 55%);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+button,input{font:inherit}button{cursor:pointer}.wrap{max-width:760px;margin:auto;padding:20px 16px calc(32px + env(safe-area-inset-bottom))}
+header{text-align:center;padding:18px 0 20px} .logo{font-size:44px}h1{font-size:27px;margin:5px 0 4px;letter-spacing:.5px}.sub{color:var(--muted);font-size:13px}
+.hero,.card{background:linear-gradient(145deg,#222630,#191c23);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 8px 24px #0003}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.stat{background:#12151b;border-radius:12px;padding:10px 5px;text-align:center}.stat b{display:block;font-size:21px}.stat span{font-size:11px;color:var(--muted)}
+.progress{height:7px;background:#343946;border-radius:8px;overflow:hidden;margin-top:13px}.progress>div{height:100%;background:linear-gradient(90deg,#d69e2e,#f6d77a);width:0;transition:width .2s}
+.tabs{display:flex;gap:7px;margin:16px 0}.tab{flex:1;padding:11px 5px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--muted);font-weight:700;font-size:13px}.tab.active{background:#4a391b;color:#ffe3a0;border-color:#98702b}
+h2{font-size:18px;margin:0 0 12px}.hint{color:var(--muted);font-size:13px;line-height:1.45;margin:0 0 12px}
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}.field input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:#11141a;color:var(--text);outline:none}.field input:focus{border-color:var(--gold)}
+.round{border:1px solid var(--line);background:#191c23;border-radius:15px;padding:13px;margin:10px 0}.roundhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font-weight:800}.roundhead small{font-weight:500;color:var(--muted)}
+.match{border:1px solid #353b48;border-radius:12px;padding:11px;margin-top:9px}.match.done{border-color:#8b6c2d;background:#282318}.matchtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.sport{font-weight:750}.matchtop small{font-size:11px;color:var(--muted)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}.choose{background:#252a34;color:var(--text);border:1px solid #414858;border-radius:10px;padding:12px 6px;font-weight:700}.choose.selected{background:#5b451e;border-color:var(--gold);color:#ffe7ad}.status{text-align:center;color:var(--muted);font-size:11px;margin-top:8px}
+.table{width:100%;border-collapse:collapse;font-size:14px}.table th,.table td{padding:12px 7px;border-bottom:1px solid var(--line);text-align:left}.table th{color:var(--muted);font-size:11px;text-transform:uppercase}.table td:last-child,.table th:last-child{text-align:right}.rank{font-size:20px;margin-right:7px}.points{font-weight:800;font-size:19px;color:var(--gold)}
+.winnerbox{text-align:center;padding:22px 12px}.winnerbox .cup{font-size:48px}.winnerbox h3{margin:7px 0;font-size:22px}.winnerbox p{color:var(--muted);font-size:13px;margin:4px}
+.action{border:1px solid var(--line);background:#252a34;color:var(--text);padding:11px 14px;border-radius:11px;font-weight:700}.danger{border-color:#794444;color:#ffb2b2}.actions{display:flex;gap:8px;flex-wrap:wrap}.hidden{display:none!important}.footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#303744;border:1px solid #596273;padding:10px 15px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}.toast.show{opacity:1}
+@media(min-width:600px){.wrap{padding-top:28px}.roundgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.round{margin:0 0 10px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div class="logo">🏆🍻</div><h1>BAR-OLYMPIADE</h1><div class="sub">4 Teams · 3 Disziplinen · 1 Champion</div></header>
+<section class="hero">
+ <div class="stats"><div class="stat"><b id="played">0/18</b><span>Spiele erledigt</span></div><div class="stat"><b id="leader">–</b><span>Führung</span></div><div class="stat"><b id="remaining">18</b><span>Noch offen</span></div></div>
+ <div class="progress"><div id="progress"></div></div>
+</section>
+<section class="card"><h2>👥 Eure Teams</h2><div class="teams" id="teamFields">
+ <div class="field"><label>TEAM A</label><input data-team="A" value="Team A" maxlength="24"></div>
+ <div class="field"><label>TEAM B</label><input data-team="B" value="Team B" maxlength="24"></div>
+ <div class="field"><label>TEAM C</label><input data-team="C" value="Team C" maxlength="24"></div>
+ <div class="field"><label>TEAM D</label><input data-team="D" value="Team D" maxlength="24"></div>
+</div></section>
+<nav class="tabs"><button class="tab active" data-tab="schedule">📋 Spielplan</button><button class="tab" data-tab="standings">🏅 Tabelle</button><button class="tab" data-tab="final">🏆 Finale</button></nav>
+<section id="schedule"><h2>Der Spielplan</h2><p class="hint">Tippt nach jedem Duell auf das Gewinnerteam. Pro Runde finden zwei Spiele parallel statt. Jede Paarung spielt jede Disziplin genau einmal.</p><div id="rounds"></div></section>
+<section id="standings" class="hidden"><div class="card"><h2>🏅 Aktuelle Rangliste</h2><div id="ranking"></div><p class="hint" style="margin:12px 0 0">Jeder Sieg zählt 1 Punkt. Bei Gleichstand entscheidet ein direktes Stechen.</p></div></section>
+<section id="final" class="hidden"><div class="card winnerbox"><div class="cup">🏆</div><h3>BAR-CHAMPION</h3><div id="champion">Noch offen</div><p id="championNote">Nach 18 Spielen steht der Sieger fest.</p></div><div class="card winnerbox"><div class="cup">💀</div><h3>LETZTER PLATZ</h3><div id="loser">Noch offen</div><p id="loserNote">Das Schlusslicht bekommt die Verlierer-Aufgabe.</p></div><div class="card"><h2>😈 Verlierer-Aufgabe</h2><p class="hint">Ideen: Karaoke-Performance, die nächste Olympiade organisieren oder ein lustiges Siegerfoto mit Verlierer-Schild machen.</p></div></section>
+<section class="card"><h2>⚙️ Turnier verwalten</h2><div class="actions"><button class="action" id="export">Ergebnisse teilen</button><button class="action danger" id="reset">Alles zurücksetzen</button></div><p class="hint" style="margin:10px 0 0">Deine Namen und Ergebnisse werden automatisch auf diesem Gerät gespeichert.</p></section>
+<div class="footer">Viel Erfolg – und möge das beste Team gewinnen! 🍺</div>
+</div><div class="toast" id="toast"></div>
+<script>
+(()=>{
+const $=id=>document.getElementById(id), teams=['A','B','C','D'];
+const schedule=[
+[['A','B','Wuzzler'],['C','D','Dart']],
+[['A','C','Wuzzler'],['B','D','Dart']],
+[['A','D','Wuzzler'],['B','C','Dart']],
+[['A','B','Dart'],['C','D','Billard']],
+[['A','C','Dart'],['B','D','Billard']],
+[['A','D','Dart'],['B','C','Billard']],
+[['A','B','Billard'],['C','D','Wuzzler']],
+[['A','C','Billard'],['B','D','Wuzzler']],
+[['A','D','Billard'],['B','C','Wuzzler']]
+];
+const icons={Wuzzler:'⚽',Dart:'🎯',Billard:'🎱'};
+let names={A:'Team A',B:'Team B',C:'Team C',D:'Team D'},results={};
+try{const saved=JSON.parse(localStorage.getItem('barolympiade-v1')||'{}');if(saved.names)names={...names,...saved.names};if(saved.results)results=saved.results;}catch(e){}
+const all=schedule.flatMap((r,i)=>r.map((g,j)=>({id:`${i}-${j}`,round:i+1,a:g[0],b:g[1],sport:g[2]})));
+function save(){localStorage.setItem('barolympiade-v1',JSON.stringify({names,results}));}
+function stats(){let s={};teams.forEach(t=>s[t]={points:0,played:0,wins:0});all.forEach(m=>{let w=results[m.id];if(w){s[w].points++;s[w].wins++;s[w===m.a?m.b:m.a].played++;s[w].played++;}});return s;}
+function sorted(){const s=stats();return [...teams].sort((a,b)=>s[b].points-s[a].points||s[b].wins-s[a].wins||a.localeCompare(b));}
+function render(){
+ const done=Object.keys(results).filter(k=>all.some(m=>m.id===k)).length,s=stats(),order=sorted();
+ $('played').textContent=done+'/18';$('remaining').textContent=18-done;$('progress').style.width=(done/18*100)+'%';
+ $('leader').textContent=s[order[0]].points?names[order[0]]:'–';
+ $('rounds').innerHTML=schedule.map((r,i)=>`<article class="round"><div class="roundhead"><span>RUNDE ${i+1}</span><small>${r.filter((g,j)=>results[`${i}-${j}`]).length}/2 fertig</small></div>${r.map((g,j)=>{let id=`${i}-${j}`,w=results[id],a=g[0],b=g[1];return `<div class="match ${w?'done':''}"><div class="matchtop"><span class="sport">${icons[g[2]]} ${g[2]}</span><small>Spiel ${i*2+j+1} von 18</small></div><div class="choices"><button class="choose ${w===a?'selected':''}" data-result="${id}|${a}">${esc(names[a])}${w===a?' ✓':''}</button><button class="choose ${w===b?'selected':''}" data-result="${id}|${b}">${esc(names[b])}${w===b?' ✓':''}</button></div><div class="status">${w?'Gewonnen: '+esc(names[w]):'Gewinner auswählen'}</div></div>`}).join('')}</article>`).join('');
+ $('ranking').innerHTML=`<table class="table"><thead><tr><th>Platz / Team</th><th>Spiele</th><th>Punkte</th></tr></thead><tbody>${order.map((t,i)=>`<tr><td><span class="rank">${['🥇','🥈','🥉','4️⃣'][i]}</span><b>${esc(names[t])}</b></td><td>${s[t].played}/9</td><td class="points">${s[t].points}</td></tr>`).join('')}</tbody></table>`;
+ const complete=done===18,top=s[order[0]].points,last=s[order[3]].points;
+ $('champion').textContent=complete?(top===s[order[1]].points?'Punktegleichstand':names[order[0]]):'Noch offen';
+ $('loser').textContent=complete?(last===s[order[2]].points?'Punktegleichstand':names[order[3]]):'Noch offen';
+ $('championNote').textContent=complete?'Herzlichen Glückwunsch! Ihr seid die Bar-Champions!':'Nach 18 Spielen steht der Sieger fest.';
+ $('loserNote').textContent=complete?'Zeit für die Verlierer-Aufgabe!':'Das Schlusslicht bekommt die Verlierer-Aufgabe.';
+}
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+$('teamFields').addEventListener('input',e=>{let t=e.target.dataset.team;if(!t)return;names[t]=e.target.value.trim()||'Team '+t;save();render();});
+$('rounds').addEventListener('click',e=>{let b=e.target.closest('[data-result]');if(!b)return;let [id,w]=b.dataset.result.split('|');if(results[id]===w)delete results[id];else results[id]=w;save();render();});
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['schedule','standings','final'].forEach(id=>$(id).classList.toggle('hidden',id!==b.dataset.tab));}));
+$('reset').addEventListener('click',()=>{if(!confirm('Wirklich alle Ergebnisse und Teamnamen zurücksetzen?'))return;results={};names={A:'Team A',B:'Team B',C:'Team C',D:'Team D'};localStorage.removeItem('barolympiade-v1');document.querySelectorAll('[data-team]').forEach(i=>i.value=names[i.dataset.team]);render();});
+$('export').addEventListener('click',async()=>{const s=stats(),order=sorted();let text='BAR-OLYMPIADE – ERGEBNISSE\n\n'+order.map((t,i)=>`${i+1}. ${names[t]}: ${s[t].points} Punkte`).join('\n')+'\n\n'+all.map(m=>`${m.sport}: ${names[m.a]} vs. ${names[m.b]} – ${results[m.id]? 'Sieger: '+names[results[m.id]]:'offen'}`).join('\n');try{if(navigator.share)await navigator.share({title:'Bar-Olympiade',text});else{await navigator.clipboard.writeText(text);toast('Ergebnisse kopiert!');}}catch(e){}});
+function toast(msg){let el=$('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1800);}
+document.querySelectorAll('[data-team]').forEach(i=>i.value=names[i.dataset.team]);
+render();
+if('serviceWorker'in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+})();
+</script>
+</body></html>
