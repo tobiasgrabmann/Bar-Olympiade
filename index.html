@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111318"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Fivebar-Olympiade">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-192.png"><title>Fivebar-Olympiade</title>
+<style>
+:root{color-scheme:dark;--bg:#111318;--panel:#1b1e26;--line:#343946;--text:#f7f5ef;--muted:#a5a9b4;--gold:#e9b949}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#252a36 0,#111318 55%);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+.wrap{max-width:760px;margin:auto;padding:18px 16px 36px}header{text-align:center;padding:12px 0 18px}.logo{font-size:40px}h1{font-size:25px;margin:5px}h2{font-size:18px;margin:0 0 12px}.sub,.hint{color:var(--muted);font-size:13px;line-height:1.45}
+.card,.hero{background:linear-gradient(145deg,#222630,#191c23);border:1px solid var(--line);border-radius:17px;padding:16px;margin-bottom:13px}.field{margin:10px 0}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#11141a;color:var(--text);font:inherit}
+button{font:inherit;cursor:pointer}.action,.choose{border:1px solid var(--line);background:#252a34;color:var(--text);padding:11px 14px;border-radius:11px;font-weight:700}.primary{background:#5b451e;border-color:#98702b;color:#ffe7ad}.danger{border-color:#794444;color:#ffb2b2}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.tabs{display:flex;gap:7px;margin:15px 0}.tab{flex:1;padding:10px 4px;border:1px solid var(--line);border-radius:10px;background:#1b1e26;color:var(--muted);font-weight:700}.tab.active{background:#4a391b;color:#ffe3a0}
+.hidden{display:none!important}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#12151b;border-radius:11px;padding:10px 5px;text-align:center}.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:var(--muted)}
+.progress{height:7px;background:#343946;border-radius:8px;overflow:hidden;margin-top:12px}.progress div{height:100%;background:#e9b949;width:0}
+.round{border:1px solid var(--line);background:#191c23;border-radius:14px;padding:12px;margin:10px 0}.roundhead,.matchtop{display:flex;justify-content:space-between;gap:8px;margin-bottom:9px;font-weight:800}.roundhead small,.matchtop small{color:var(--muted);font-size:11px}.match{border:1px solid #353b48;border-radius:11px;padding:10px;margin-top:9px}.match.done{border-color:#8b6c2d;background:#282318}.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}.choose{padding:11px 5px}.choose.selected{background:#5b451e;border-color:#e9b949;color:#ffe7ad}.choose:disabled{opacity:.45;cursor:not-allowed}.status{text-align:center;color:var(--muted);font-size:11px;margin-top:7px}
+.table{width:100%;border-collapse:collapse;font-size:14px}.table td,.table th{padding:11px 6px;border-bottom:1px solid var(--line);text-align:left}.table th{font-size:11px;color:var(--muted)}.points{color:#e9b949;font-weight:800}.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#303744;padding:10px 15px;border-radius:20px;opacity:0;transition:.2s}.toast.show{opacity:1}
+#qr{background:white;padding:10px;width:max-content;border-radius:8px;margin-top:10px}.footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
+</style></head><body><div class="wrap">
+<header><div class="logo">🏆🍻</div><h1>FIVEBAR-OLYMPIADE</h1><div class="sub">4 Teams · 3 Disziplinen · 1 Champion</div></header>
+<section id="entry" class="card"><h2>👋 Willkommen zur Bar-Olympiade</h2>
+<p class="hint">Erstelle ein Turnier oder tritt mit dem 6-stelligen Turniercode bei. Dein Team kann anschließend nur Ergebnisse eigener Spiele eintragen.</p>
+<div class="field"><label>DEIN TEAMNAME</label><input id="teamName" maxlength="24" placeholder="z. B. Die Zapfhähne"></div>
+<div class="field"><label>TURNIERCODE (nur beim Beitreten)</label><input id="joinCode" inputmode="numeric" maxlength="6" placeholder="6-stelliger Code"></div>
+<div class="actions"><button class="action primary" id="create">Neues Turnier erstellen</button><button class="action" id="join">Mit Code beitreten</button></div>
+<p class="hint" id="entryMsg"></p></section>
+<main id="app" class="hidden">
+<section class="hero"><div id="roomInfo" class="hint"></div><div class="stats"><div class="stat"><b id="played">0/18</b><span>Spiele erledigt</span></div><div class="stat"><b id="leader">–</b><span>Führung</span></div><div class="stat"><b id="remaining">18</b><span>Noch offen</span></div></div><div class="progress"><div id="progress"></div></div></section>
+<section class="card"><h2>👥 Teams</h2><div id="teamList" class="hint"></div></section>
+<nav class="tabs"><button class="tab active" data-tab="schedule">📋 Spielplan</button><button class="tab" data-tab="standings">🏅 Tabelle</button><button class="tab" data-tab="final">🏆 Finale</button></nav>
+<section id="schedule"><h2>Der Spielplan</h2><p class="hint">Wähle den Gewinner. Du kannst nur Spiele eintragen, an denen dein Team beteiligt ist. Korrekturen sind dem Ersteller vorbehalten.</p><div id="rounds"></div></section>
+<section id="standings" class="hidden card"><h2>🏅 Aktuelle Rangliste</h2><div id="ranking"></div><p class="hint">Jeder Sieg zählt 1 Punkt.</p></section>
+<section id="final" class="hidden card"><h2>🏆 BAR-CHAMPION</h2><div id="champion">Noch offen</div><p class="hint" id="championNote"></p></section>
+<section class="card"><h2>🔗 Team beitreten</h2><p class="hint">Turniercode zum Teilen:</p><b id="shareCode" style="font-size:25px;letter-spacing:5px"></b><div id="qr"></div><p class="hint">Andere Teams können den Code eingeben oder den QR-Code scannen.</p></section>
+<section class="card"><h2>⚙️ Verwaltung</h2><div class="actions"><button class="action" id="share">Code teilen</button><button class="action danger" id="leave">Dieses Gerät abmelden</button></div><p class="hint">Turnierergebnisse werden live über Firebase synchronisiert.</p></section>
+</main><div class="footer">Viel Erfolg – möge das beste Team gewinnen! 🍺</div></div><div class="toast" id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(()=>{
+const cfg={"apiKey": "AIzaSyC4t0WI5yDC54yhhLN7U-PHTJ64T79DeVc", "authDomain": "bar-olympiade.firebaseapp.com", "databaseURL": "https://bar-olympiade-default-rtdb.europe-west1.firebasedatabase.app", "projectId": "bar-olympiade", "storageBucket": "bar-olympiade.firebasestorage.app", "messagingSenderId": "932729716040", "appId": "1:932729716040:web:8c864f5ecd33e2bb5f077d"};
+firebase.initializeApp(cfg);const auth=firebase.auth(),db=firebase.database();
+const $=id=>document.getElementById(id),esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const matches=[["0-0", "A", "B", "Wuzzler"], ["0-1", "C", "D", "Dart"], ["1-0", "A", "C", "Wuzzler"], ["1-1", "B", "D", "Dart"], ["2-0", "A", "D", "Wuzzler"], ["2-1", "B", "C", "Dart"], ["3-0", "A", "B", "Dart"], ["3-1", "C", "D", "Billard"], ["4-0", "A", "C", "Dart"], ["4-1", "B", "D", "Billard"], ["5-0", "A", "D", "Dart"], ["5-1", "B", "C", "Billard"], ["6-0", "A", "B", "Billard"], ["6-1", "C", "D", "Wuzzler"], ["7-0", "A", "C", "Billard"], ["7-1", "B", "D", "Wuzzler"], ["8-0", "A", "D", "Billard"], ["8-1", "B", "C", "Wuzzler"]].map(x=>({id:x[0],a:x[1],b:x[2],sport:x[3],round:+x[0].split('-')[0]+1}));
+const icons={Wuzzler:'⚽',Dart:'🎯',Billard:'🎱'};
+let uid=null,room=null,myTeam=null,roomData=null,unsub=null;
+const say=m=>{ $('toast').textContent=m;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2200);};
+const code=()=>String(Math.floor(100000+Math.random()*900000));
+async function ensureAuth(){if(!auth.currentUser)await auth.signInAnonymously();uid=auth.currentUser.uid;}
+function showError(e){$('entryMsg').textContent=e.message||String(e);}
+$('create').onclick=async()=>{
+ try{const n=$('teamName').value.trim();if(!n)throw Error('Bitte zuerst deinen Teamnamen eingeben.');await ensureAuth();
+ let c=code();while((await db.ref('rooms/'+c).get()).exists())c=code();
+ const map={};matches.forEach(m=>map[m.id]={a:m.a,b:m.b,sport:m.sport});
+ const teams={A:{name:n,uid},B:{name:'Team B'},C:{name:'Team C'},D:{name:'Team D'}};
+ await db.ref('rooms/'+c).set({creatorUid:uid,createdAt:firebase.database.ServerValue.TIMESTAMP,teams,matches:map,results:{}});
+ room=c;myTeam='A';localStorage.setItem('barolympiade-session',JSON.stringify({room,myTeam,uid}));startRoom();
+ }catch(e){showError(e);}
+};
+$('join').onclick=async()=>{
+ try{const n=$('teamName').value.trim(),c=$('joinCode').value.trim();if(!n)throw Error('Bitte zuerst deinen Teamnamen eingeben.');if(!/^\d{6}$/.test(c))throw Error('Bitte einen gültigen 6-stelligen Code eingeben.');await ensureAuth();
+ const snap=await db.ref('rooms/'+c).get();if(!snap.exists())throw Error('Dieses Turnier wurde nicht gefunden.');
+ const d=snap.val();const choices=['A','B','C','D'].filter(t=>!d.teams?.[t]?.uid);
+ if(!choices.length)throw Error('Alle vier Teams sind bereits belegt.');
+ // first free team is assigned automatically; the displayed team name is the player's own team identity
+ myTeam=choices[0];await db.ref(`rooms/${c}/teams/${myTeam}`).set({name:n,uid});
+ room=c;localStorage.setItem('barolympiade-session',JSON.stringify({room,myTeam,uid}));startRoom();
+ }catch(e){showError(e);}
+};
+function startRoom(){
+ $('entry').classList.add('hidden');$('app').classList.remove('hidden');
+ if(unsub)db.ref('rooms/'+room).off('value',unsub);
+ unsub=s=>{roomData=s.val();if(!roomData){say('Turnier nicht mehr vorhanden.');return;}render();};
+ db.ref('rooms/'+room).on('value',unsub,e=>say('Synchronisierungsfehler: '+e.message));
+}
+function stats(){let s={A:{points:0,played:0},B:{points:0,played:0},C:{points:0,played:0},D:{points:0,played:0}};matches.forEach(m=>{let w=roomData.results?.[m.id];if(w){s[w].points++;s[w].played++;s[w===m.a?m.b:m.a].played++;}});return s;}
+function render(){
+ const teams=roomData.teams||{},results=roomData.results||{},s=stats(),order=['A','B','C','D'].sort((a,b)=>s[b].points-s[a].points);
+ $('roomInfo').textContent=`Turniercode: ${room} · Dein Team: ${teams[myTeam]?.name||myTeam}${uid===roomData.creatorUid?' · Ersteller/Admin':''}`;
+ $('shareCode').textContent=room;$('teamList').innerHTML=['A','B','C','D'].map(t=>`${t}: <b>${esc(teams[t]?.name||'Noch nicht beigetreten')}</b>${teams[t]?.uid?'':' (frei)'}`).join('<br>');
+ $('played').textContent=Object.keys(results).length+'/18';$('remaining').textContent=18-Object.keys(results).length;$('progress').style.width=(Object.keys(results).length/18*100)+'%';$('leader').textContent=s[order[0]].points?(teams[order[0]]?.name||order[0]):'–';
+ $('rounds').innerHTML=Array.from({length:9},(_,i)=>{let ms=matches.filter(m=>m.round===i+1);return `<article class="round"><div class="roundhead"><span>RUNDE ${i+1}</span><small>${ms.filter(m=>results[m.id]).length}/2 fertig</small></div>${ms.map(m=>{let w=results[m.id],allowed=[m.a,m.b].includes(myTeam),admin=uid===roomData.creatorUid;return `<div class="match ${w?'done':''}"><div class="matchtop"><span>${icons[m.sport]} ${m.sport}</span><small>Spiel ${matches.indexOf(m)+1}/18</small></div><div class="choices">${[m.a,m.b].map(t=>`<button class="choose ${w===t?'selected':''}" data-match="${m.id}" data-winner="${t}" ${(!admin&&(!allowed||!!w))?'disabled':''}>${esc(teams[t]?.name||'Team '+t)}${w===t?' ✓':''}</button>`).join('')}</div><div class="status">${w?'Gewonnen: '+esc(teams[w]?.name||w):allowed?'Du kannst dieses Spiel eintragen':admin?'Admin: Ergebnis eintragen/korrigieren':'Nur beteiligte Teams können dieses Spiel eintragen'}</div></div>`}).join('')}</article>`}).join('');
+ $('ranking').innerHTML=`<table class="table"><thead><tr><th>Platz / Team</th><th>Spiele</th><th>Punkte</th></tr></thead><tbody>${order.map((t,i)=>`<tr><td>${['🥇','🥈','🥉','4️⃣'][i]} ${esc(teams[t]?.name||'Team '+t)}</td><td>${s[t].played}/9</td><td class="points">${s[t].points}</td></tr>`).join('')}</tbody></table>`;
+ const done=Object.keys(results).length===18;$('champion').textContent=done?(teams[order[0]]?.name||order[0]):'Noch offen';$('championNote').textContent=done?'Herzlichen Glückwunsch!':'Nach 18 Spielen steht der Sieger fest.';
+ $('qr').innerHTML='';if(window.QRCode)new QRCode($('qr'),{text:location.href.split('?')[0]+'?join='+room,width:150,height:150});
+}
+$('rounds').addEventListener('click',async e=>{
+ const b=e.target.closest('[data-match]');if(!b||b.disabled)return;const id=b.dataset.match,w=b.dataset.winner;
+ try{const ref=db.ref(`rooms/${room}/results/${id}`);if(uid===roomData.creatorUid){const old=(await ref.get()).val();if(old===w)await ref.remove();else await ref.set(w);}
+ else {if(![...matches.filter(m=>m.id===id)].some(m=>m.a===myTeam||m.b===myTeam))throw Error('Du darfst nur eigene Spiele eintragen.');await ref.set(w);}
+ }catch(err){say('Nicht gespeichert: '+err.message);}
+});
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['schedule','standings','final'].forEach(id=>$(id).classList.toggle('hidden',id!==b.dataset.tab));});
+$('share').onclick=async()=>{try{await navigator.share({title:'Bar-Olympiade',text:'Tritt meinem Team bei. Turniercode: '+room+' – '+location.href.split('?')[0]+'?join='+room});}catch(e){try{await navigator.clipboard.writeText('Turniercode: '+room+' '+location.href.split('?')[0]+'?join='+room);say('Einladungslink kopiert.');}catch(_){say('Turniercode: '+room);}}};
+$('leave').onclick=()=>{if(unsub)db.ref('rooms/'+room).off('value',unsub);localStorage.removeItem('barolympiade-session');location.reload();};
+(async()=>{try{await ensureAuth();const saved=JSON.parse(localStorage.getItem('barolympiade-session')||'null');const q=new URLSearchParams(location.search).get('join');if(q)$('joinCode').value=q;if(saved&&saved.uid===uid){const snap=await db.ref('rooms/'+saved.room).get();if(snap.exists()){room=saved.room;myTeam=saved.myTeam;startRoom();}}}catch(e){showError(e);}})();
+})();
+</script></body></html>

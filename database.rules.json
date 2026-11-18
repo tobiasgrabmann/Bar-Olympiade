@@ -1,0 +1,21 @@
+{
+  "rules": {
+    "rooms": {
+      "$room": {
+        ".read": "auth != null",
+        ".write": "!data.exists() && auth != null && newData.child('creatorUid').val() === auth.uid",
+        "teams": {
+          "$team": {
+            ".write": "auth != null && ((!data.exists() && newData.child('uid').val() === auth.uid) || (data.exists() && data.child('uid').val() === auth.uid && newData.child('uid').val() === auth.uid) || auth.uid === root.child('rooms').child($room).child('creatorUid').val())"
+          }
+        },
+        "results": {
+          "$match": {
+            ".write": "auth != null && ((!data.exists() && ((auth.uid === root.child('rooms').child($room).child('teams').child(root.child('rooms').child($room).child('matches').child($match).child('a').val()).child('uid').val()) || (auth.uid === root.child('rooms').child($room).child('teams').child(root.child('rooms').child($room).child('matches').child($match).child('b').val()).child('uid').val()))) || auth.uid === root.child('rooms').child($room).child('creatorUid').val())",
+            ".validate": "!newData.exists() || (newData.isString() && (newData.val() === root.child('rooms').child($room).child('matches').child($match).child('a').val() || newData.val() === root.child('rooms').child($room).child('matches').child($match).child('b').val()))"
+          }
+        }
+      }
+    }
+  }
+}
